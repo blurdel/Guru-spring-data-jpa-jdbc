@@ -1,9 +1,9 @@
 package com.blurdel.sdjpajdbc.dao;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 
 import javax.sql.DataSource;
 
@@ -25,14 +25,15 @@ public class AuthorDaoImpl implements AuthorDao {
 	@Override
 	public Author getById(Long id) {
 		Connection conn = null;
-		Statement stmt = null;
+		PreparedStatement pstmt = null;
 		ResultSet rs = null;
 		
 		try {
 			
 			conn = source.getConnection();
-			stmt = conn.createStatement();
-			rs = stmt.executeQuery("select * from author where id = " + id);
+			pstmt = conn.prepareStatement("select * from author where id = ?");
+			pstmt.setLong(1, id);
+			rs = pstmt.executeQuery();
 			
 			if (rs.next()) {
 				Author author = new Author();
@@ -49,8 +50,8 @@ public class AuthorDaoImpl implements AuthorDao {
 			try {
 				if (rs != null)
 					rs.close();
-				if (stmt != null)
-					stmt.close();
+				if (pstmt != null)
+					pstmt.close();
 				if (conn != null)
 					conn.close();
 			}
