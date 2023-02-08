@@ -45,6 +45,19 @@ public class AuthorDaoImpl implements AuthorDao {
 		catch (SQLException e) {
 			e.printStackTrace();
 		}
+		finally {
+			try {
+				if (rs != null)
+					rs.close();
+				if (stmt != null)
+					stmt.close();
+				if (conn != null)
+					conn.close();
+			}
+			catch (SQLException ex) {
+				ex.printStackTrace();
+			}
+		}
 		
 		return null;
 	}
