@@ -24,14 +24,48 @@ class AuthorDaoIntegrationTest {
 	@Autowired
 	AuthorDao authorDao;
 	
+	
 	@Test
-	void testAuthorId() {
-		Author author = authorDao.getById(1L);
-		assertThat(author).isNotNull();
+	void testDeleteAuthor() {
+		Author author = new Author();
+		author.setFirstName("john");
+		author.setLastName("t");
+		
+		Author saved = authorDao.saveNew(author);
+		
+		authorDao.delete(saved.getId());
+		
+		Author deleted = authorDao.getById(saved.getId());
+		
+		assertThat(deleted).isNull();
 	}
 	
 	@Test
-	void testAuthorName() {
+	void testUpdateAuthor() {
+		Author author = new Author();
+		author.setFirstName("john");
+		author.setLastName("t");
+		
+		Author saved = authorDao.saveNew(author);
+		
+		saved.setLastName("Thompson");
+		Author updated = authorDao.update(saved);
+		
+		assertThat(updated.getLastName()).isEqualTo("Thompson");
+	}
+	
+	@Test
+	void testSaveAuthor() {
+		Author author = new Author();
+		author.setFirstName("John");
+		author.setLastName("Thompson");
+		Author saved = authorDao.saveNew(author);
+		
+		assertThat(saved).isNotNull();
+	}
+	
+	@Test
+	void testGetAuthorByName() {
 		Author author = null;
 		
 		author = authorDao.getByName("Craig", "Walls");
@@ -39,6 +73,12 @@ class AuthorDaoIntegrationTest {
 		
 		author = authorDao.getByName("David", "Anderson");
 		assertThat(author).isNull();
+	}
+	
+	@Test
+	void testGetAuthorById() {
+		Author author = authorDao.getById(1L);
+		assertThat(author).isNotNull();
 	}
 
 }
