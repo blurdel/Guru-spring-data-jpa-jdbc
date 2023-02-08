@@ -25,11 +25,20 @@ class AuthorDaoIntegrationTest {
 	AuthorDao authorDao;
 	
 	@Test
-	void test() {
-//		fail("Not yet implemented");
-		
+	void testAuthorId() {
 		Author author = authorDao.getById(1L);
 		assertThat(author).isNotNull();
+	}
+	
+	@Test
+	void testAuthorName() {
+		Author author = null;
+		
+		author = authorDao.getByName("Craig", "Walls");
+		assertThat(author).isNotNull();
+		
+		author = authorDao.getByName("David", "Anderson");
+		assertThat(author).isNull();
 	}
 
 }
