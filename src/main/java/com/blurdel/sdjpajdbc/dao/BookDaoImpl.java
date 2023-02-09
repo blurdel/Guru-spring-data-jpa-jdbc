@@ -5,6 +5,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Types;
 
 import javax.sql.DataSource;
 
@@ -16,10 +17,12 @@ import com.blurdel.sdjpajdbc.domain.Book;
 public class BookDaoImpl implements BookDao {
 
 	private final DataSource source;
+	private final AuthorDao authorDao;
 	
 	
-	public BookDaoImpl(DataSource source) {
+	public BookDaoImpl(DataSource source, AuthorDao authorDao) {
 		this.source = source;
+		this.authorDao = authorDao;
 	}
 
 
@@ -95,10 +98,16 @@ public class BookDaoImpl implements BookDao {
 		try {
 			
 			conn = source.getConnection();
-			pstmt = conn.prepareStatement("insert into book (isbn, publisher, title) values (?,?,?)");
+			pstmt = conn.prepareStatement("insert into book (isbn, publisher, title, author_id) values (?,?,?,?)");
 			pstmt.setString(1, book.getIsbn());
 			pstmt.setString(2, book.getPublisher());
 			pstmt.setString(3, book.getTitle());
+			
+			if (book.getAuthor() != null) {
+				pstmt.setLong(4, book.getAuthor().getId());
+			} else {
+				pstmt.setNull(4, Types.BIGINT);
+			}
 			pstmt.execute();
 
 			// Return inserted book
@@ -132,11 +141,15 @@ public class BookDaoImpl implements BookDao {
 		try {
 			
 			conn = source.getConnection();
-			pstmt = conn.prepareStatement("update book set isbn=?, publisher=?, title=? where id=?");
+			pstmt = conn.prepareStatement("update book set isbn=?, publisher=?, title=?, author_id=? where id=?");
 			pstmt.setString(1, book.getIsbn());
 			pstmt.setString(2, book.getPublisher());
 			pstmt.setString(3, book.getTitle());
-			pstmt.setLong(4, book.getId());
+			
+			if (book.getAuthor() != null) {
+				pstmt.setLong(4, book.getAuthor().getId());
+			}
+			pstmt.setLong(5, book.getId());
 			pstmt.execute();
 
 		}
@@ -186,6 +199,8 @@ public class BookDaoImpl implements BookDao {
 		book.setIsbn(rs.getString("isbn"));
 		book.setPublisher(rs.getString("publisher"));
 		book.setTitle(rs.getString("title"));
+		// Lookup author by id
+		book.setAuthor(authorDao.getById(rs.getLong("author_id")));
 		return book;
 	}
 

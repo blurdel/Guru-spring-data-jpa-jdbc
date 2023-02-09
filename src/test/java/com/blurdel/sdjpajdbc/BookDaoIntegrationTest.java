@@ -9,14 +9,18 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
 
+import com.blurdel.sdjpajdbc.dao.AuthorDaoImpl;
 import com.blurdel.sdjpajdbc.dao.BookDao;
 import com.blurdel.sdjpajdbc.dao.BookDaoImpl;
+import com.blurdel.sdjpajdbc.domain.Author;
 import com.blurdel.sdjpajdbc.domain.Book;
 
 @ActiveProfiles("mysql")
 @DataJpaTest
 //@ComponentScan(basePackages = {"com.blurdel.sdjpajdbc.dao"})
-@Import(BookDaoImpl.class)
+
+//NOTE: Added AuthorDaoImpl since it needs to get injected into BookDaoImpl
+@Import({BookDaoImpl.class, AuthorDaoImpl.class})
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 class BookDaoIntegrationTest {
 
@@ -30,7 +34,6 @@ class BookDaoIntegrationTest {
         book.setIsbn("1234");
         book.setPublisher("Self");
         book.setTitle("my book");
-        book.setAuthorId(3L);
         Book saved = bookDao.saveNew(book);
 
         bookDao.delete(saved.getId());
@@ -46,7 +49,11 @@ class BookDaoIntegrationTest {
         book.setIsbn("1234");
         book.setPublisher("Self");
         book.setTitle("my book");
-        book.setAuthorId(3L);
+        
+        Author author = new Author();
+        author.setId(3L);
+        
+        book.setAuthor(author);
         Book saved = bookDao.saveNew(book);
 
         saved.setTitle("New Book");
@@ -63,7 +70,11 @@ class BookDaoIntegrationTest {
         book.setIsbn("1234");
         book.setPublisher("Self");
         book.setTitle("my book");
-        book.setAuthorId(3L);
+        
+        Author author = new Author();
+        author.setId(3L);
+        
+        book.setAuthor(author);
         Book saved = bookDao.saveNew(book);
 
         assertThat(saved).isNotNull();
